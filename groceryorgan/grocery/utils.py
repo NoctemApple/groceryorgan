@@ -37,3 +37,21 @@ def parse_grocery_text(text):
 
 # This is the test branch right?
 
+def merge_grocery_lists(new_items, old_items):
+    """
+    Merge new grocery list items with old items, preserving metadata such as 
+    'done', 'order', and 'last_done_date' based on case-insensitive matching of names.
+    """
+    # Create a lookup dictionary from old items (key: lowercased item name)
+    old_lookup = {item['name'].lower(): item for item in old_items}
+    merged = []
+    for new_item in new_items:
+        key = new_item['name'].lower()
+        if key in old_lookup:
+            # Carry over previous metadata if available
+            new_item['done'] = old_lookup[key].get('done', False)
+            new_item['order'] = old_lookup[key].get('order')
+            new_item['last_done_date'] = old_lookup[key].get('last_done_date')
+        merged.append(new_item)
+    return merged
+
