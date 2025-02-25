@@ -6,13 +6,11 @@ from .utils import load_grocery_list, save_grocery_list, parse_grocery_text, mer
 
 def organize_items(items):
     """
-    Organizes grocery items so that unchecked items appear first,
-    followed by checked items sorted by their 'order' value.
+    Organizes items by sorting first on 'category' and then on 'order'.
+    Items with no recorded order (order is None) are treated as having an infinite order,
+    so they appear after items with an order.
     """
-    unchecked = [item for item in items if not item.get('done')]
-    checked = [item for item in items if item.get('done')]
-    checked.sort(key=lambda x: x.get('order', 0))
-    return unchecked + checked
+    return sorted(items, key=lambda x: (x.get('category', 0), x['order'] if x['order'] is not None else float('inf')))
 
 def index(request):
     """
@@ -68,14 +66,18 @@ def upload_list(request):
         if raw_text:
             # Parse the new list from the uploaded text
             new_items = parse_grocery_text(raw_text)
-            # Load the existing list
+            # Load the existing (old) items
             old_items = load_grocery_list()
-            # Merge the new items with the old, preserving previous order and status
+            # Merge new items with old items, preserving order metadata
             merged_items = merge_grocery_lists(new_items, old_items)
-            # Save the merged list
+            # Reset the checklist for the new week:
+            for item in merged_items:
+                item['done'] = False
+                item['last_done_date'] = None
             save_grocery_list(merged_items)
         return redirect('index')
     return render(request, 'grocery/upload.html')
+
 
 
 def sort_by_previous_order(items):
