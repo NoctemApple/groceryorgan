@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Groceryorgan - Grocery List</title>
     
-    <!-- Include favicon -->
+    <!-- Include favicon via partial -->
     {% include 'grocery/partials/icon.html' %}
     
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
@@ -16,6 +17,11 @@
         <h1>Your Grocery List</h1>
         <ul class="list-group">
             {% for item in grocery_list %}
+                {% ifchanged item.category %}
+                    <li class="list-group-item bg-light">
+                        <strong>Group {{ item.category|add:1 }}</strong>
+                    </li>
+                {% endifchanged %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     {{ item.name }}
                     {% if not item.done %}
@@ -47,7 +53,10 @@
             $(".mark-done").click(function(){
                 var btn = $(this);
                 var name = btn.data("name");
-                $.post("{% url 'update_status' %}", { name: name, csrfmiddlewaretoken: '{{ csrf_token }}' }, function(data){
+                $.post("{% url 'update_status' %}", {
+                    name: name,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                }, function(data){
                     location.reload();
                 });
             });
