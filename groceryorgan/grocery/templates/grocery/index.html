@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Groceryorgan - Grocery List</title>
-
+    
     <!-- Include favicon via partial -->
     {% include 'grocery/partials/icon.html' %}
     
@@ -27,7 +27,10 @@
                     {% if not item.done %}
                         <button class="btn btn-sm btn-success mark-done" data-name="{{ item.name }}">Mark Done</button>
                     {% else %}
-                        <span class="badge badge-primary badge-pill">Done (Order: {{ item.order }})</span>
+                        <div>
+                            <span class="badge badge-primary badge-pill mr-2">Done (Order: {{ item.order }})</span>
+                            <button class="btn btn-sm btn-warning undo-status" data-name="{{ item.name }}">Undo</button>
+                        </div>
                     {% endif %}
                 </li>
             {% endfor %}
@@ -46,6 +49,12 @@
             <textarea name="raw_text" class="form-control" rows="10" placeholder="Paste your full grocery list here"></textarea>
             <button type="submit" class="btn btn-secondary mt-2">Upload List</button>
         </form>
+        <hr>
+        <h3>Clear List</h3>
+        <form action="{% url 'clear_list' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Clear Grocery List</button>
+        </form>
     </div>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -53,8 +62,19 @@
             $(".mark-done").click(function(){
                 var btn = $(this);
                 var name = btn.data("name");
-                $.post("{% url 'update_status' %}", {
-                    name: name,
+                $.post("{% url 'update_status' %}", { 
+                    name: name, 
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                }, function(data){
+                    location.reload();
+                });
+            });
+            
+            $(".undo-status").click(function(){
+                var btn = $(this);
+                var name = btn.data("name");
+                $.post("{% url 'undo_status' %}", { 
+                    name: name, 
                     csrfmiddlewaretoken: '{{ csrf_token }}'
                 }, function(data){
                     location.reload();

@@ -89,3 +89,42 @@ def upload_list(request):
             save_grocery_list(merged_items)
         return redirect('index')
     return render(request, 'grocery/upload.html')
+
+def undo_status(request):
+    """
+    Reverts an item's 'done' status by resetting its order and last_done_date.
+    Also updates persistent history accordingly.
+    """
+    if request.method == 'POST':
+        item_name = request.POST.get('name')
+        items = load_grocery_list()
+        history = load_order_history()
+        key = item_name.lower()
+        # Look for the item in the current list.
+        for item in items:
+            if item['name'].lower() == key:
+                item['done'] = False
+                # Optionally, you might decide not to reset the order in history,
+                # so that if the user marks it done again later, it reuses the old order.
+                # Here we choose to leave history intact so that undo doesn't remove history.
+                item['order'] = history.get(key, {}).get('order')
+                item['last_done_date'] = None
+                break
+        save_grocery_list(items)
+        # Do not clear history here because we want to preserve past order.
+        return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
+    return HttpResponse("Invalid request method", status=405)
+
+def clear_list(request):
+    """
+    Clears the current grocery list and (optionally) the order history.
+    Use with caution!
+    """
+    if request.method == 'POST':
+        # Clear the grocery list.
+        save_grocery_list([])
+        # Optionally, clear the persistent history as well.
+        # Uncomment the next line if you want to clear history too.
+        # save_order_history({})
+        return redirect('index')
+    return HttpResponse("Invalid request method", status=405)
