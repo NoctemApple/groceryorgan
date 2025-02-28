@@ -1,18 +1,1 @@
-{
-    "bread": {
-        "order": 12,
-        "category": 1
-    },
-    "fresh milk": {
-        "order": 11,
-        "category": 1
-    },
-    "oreo": {
-        "order": 14,
-        "category": 1
-    },
-    "minute maid": {
-        "order": 13,
-        "category": 1
-    }
-}
+{}

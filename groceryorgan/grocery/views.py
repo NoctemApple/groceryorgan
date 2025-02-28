@@ -128,3 +128,84 @@ def clear_list(request):
         # save_order_history({})
         return redirect('index')
     return HttpResponse("Invalid request method", status=405)
+
+def clear_history(request):
+    """
+    Clears the persistent order history.
+    """
+    if request.method == 'POST':
+        # Clear the order history by saving an empty dictionary.
+        save_order_history({})
+        return redirect('index')
+    return HttpResponse("Invalid request method", status=405)
+
+def add_item(request):
+    """
+    Handles adding a single item to the grocery list with a specified group.
+    """
+    if request.method == 'POST':
+        new_item = request.POST.get('item')
+        group = request.POST.get('group')
+        try:
+            group = int(group)
+        except (TypeError, ValueError):
+            group = 0
+        items = load_grocery_list()
+        if new_item:
+            items.append({
+                "name": new_item,
+                "category": group,  # use 'group' as the category
+                "done": False,
+                "order": None,
+                "last_done_date": None
+            })
+            save_grocery_list(items)
+        return redirect('index')
+    return HttpResponse("Invalid request method", status=405)
+
+def get_group_options(items):
+    """
+    Returns a sorted list of unique group numbers from the given items.
+    If no items exist, returns [0] as the default group.
+    """
+    if not items:
+        return [0]
+    groups = set(item.get('category', 0) for item in items)
+    return sorted(list(groups))
+
+def index(request):
+    """
+    Loads the grocery list, sorts it, and passes the list along with available group options.
+    """
+    items = load_grocery_list()
+    sorted_items = organize_items(items)
+    group_options = get_group_options(items)
+    return render(request, 'grocery/index.html', {
+        'grocery_list': sorted_items,
+        'group_options': group_options
+    })
+
+def add_item(request):
+    """
+    Handles adding a single item to the grocery list.
+    Reads the selected group from the form.
+    """
+    if request.method == 'POST':
+        new_item = request.POST.get('item')
+        group = request.POST.get('group')
+        try:
+            group = int(group)
+        except (TypeError, ValueError):
+            group = 0
+        items = load_grocery_list()
+        if new_item:
+            items.append({
+                "name": new_item,
+                "category": group,
+                "done": False,
+                "order": None,
+                "last_done_date": None
+            })
+            save_grocery_list(items)
+        return redirect('index')
+    return HttpResponse("Invalid request method", status=405)
