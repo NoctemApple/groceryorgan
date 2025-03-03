@@ -38,7 +38,7 @@
         <hr>
         <div class="row">
             <!-- Add Single Item Form -->
-            <div class="col-md-4">
+            <div class="col-4">
                 <h3>Add a Single Item</h3>
                 <form action="{% url 'add_item' %}" method="post" class="form-inline">
                     {% csrf_token %}
@@ -52,14 +52,14 @@
                 </form>
             </div>
             <!-- Clear Grocery List Button -->
-            <div class="col-md-4 d-flex align-items-center justify-content-center">
+            <div class="col-4 d-flex align-items-center justify-content-center">
                 <form action="{% url 'clear_list' %}" method="post">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger mb-2">Clear Grocery List</button>
+                    <button type="submit" class="btn btn-danger mb-2">Clear List</button>
                 </form>
             </div>
             <!-- Clear History Button -->
-            <div class="col-md-4 d-flex align-items-center justify-content-end">
+            <div class="col-4 d-flex align-items-center justify-content-end">
                 <form action="{% url 'clear_history' %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger mb-2">Clear History</button>
