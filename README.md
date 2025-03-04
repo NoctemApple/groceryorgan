@@ -6,3 +6,9 @@ Objectives:
 2) based on the previous list it will automatically organize the new list according to the previous order the grocery list was done in
 3) this will continue on and on
 4) maybe it works.
+
+To do list:
+1) Improve UI
+2) Make sorting better
+3) Make the UI actually good
+4) Test and improve mobile experience
