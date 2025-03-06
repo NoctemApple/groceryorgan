@@ -1,0 +1,15 @@
+/* styles.css */
+body {
+    background-color: #f0f0f0; /* Light gray background */
+}
+
+/* Custom style for the container (if needed) */
+.container {
+    padding: 20px;
+}
+
+/* Example: Style for group header background */
+.group-header {
+    background-color: #e9ecef;
+    padding: 8px;
+}

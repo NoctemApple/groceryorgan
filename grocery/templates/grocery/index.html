@@ -9,7 +9,11 @@
     <!-- Include favicon via partial -->
     {% include 'grocery/partials/icon.html' %}
     
+    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- External Custom CSS -->
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body>
@@ -36,7 +40,7 @@
             {% endfor %}
         </ul>
         <hr>
-        <div class="row">
+        <div class="row align-items-end">
             <!-- Add Single Item Form -->
             <div class="col-4">
                 <h3>Add a Single Item</h3>
@@ -52,14 +56,14 @@
                 </form>
             </div>
             <!-- Clear Grocery List Button -->
-            <div class="col-4 d-flex align-items-center justify-content-center">
+            <div class="col-4 d-flex align-items-end justify-content-center">
                 <form action="{% url 'clear_list' %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger mb-2">Clear List</button>
                 </form>
             </div>
             <!-- Clear History Button -->
-            <div class="col-4 d-flex align-items-center justify-content-end">
+            <div class="col-4 d-flex align-items-end justify-content-end">
                 <form action="{% url 'clear_history' %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger mb-2">Clear History</button>
