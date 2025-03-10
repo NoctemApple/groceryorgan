@@ -1,0 +1,13 @@
+<div class="row mt-3">
+    <div class="col d-flex justify-content-end">
+      <form action="{% url 'clear_list' %}" method="post" class="mr-2">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Clear Grocery List</button>
+      </form>
+      <form action="{% url 'clear_history' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Clear History</button>
+      </form>
+    </div>
+  </div>
+  

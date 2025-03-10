@@ -186,10 +186,6 @@ def index(request):
     })
 
 def add_item(request):
-    """
-    Handles adding a single item to the grocery list.
-    Reads the selected group from the form.
-    """
     if request.method == 'POST':
         new_item = request.POST.get('item')
         group = request.POST.get('group')
