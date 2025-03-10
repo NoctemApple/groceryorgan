@@ -9,7 +9,7 @@ python manage.py runserver
 
 python manage.py runserver 0.0.0.0:8000
 
-then on your phone http://<your-computer-ip>:8000
+then on your phone http://your-computer-ip:8000
 i.e http://192.168.1.10:8000
 
 ## Objectives:
