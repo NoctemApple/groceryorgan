@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+*$py.class
+__pycache__/
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+db.sqlite3
+
+# If you're using a local settings file (not recommended to commit)
+local_settings.py
+
+# Environment variables – secret keys, etc.
+.env
+
+# Virtual environments
+env/
+venv/
+
+# Static files collected by Django (if using collectstatic)
+staticfiles/
+
+# Media files (if applicable)
+media/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Persistent JSON files for your app's data (if you don't want them tracked)
+# Remove these lines if you want to version control your persistent data
+order_history.json
+grocery_list.json
