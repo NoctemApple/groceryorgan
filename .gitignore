@@ -31,5 +31,4 @@ Thumbs.db
 
 # Persistent JSON files for your app's data (if you don't want them tracked)
 # Remove these lines if you want to version control your persistent data
-order_history.json
-grocery_list.json
+*.json
