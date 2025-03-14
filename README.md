@@ -1,3 +1,5 @@
+# This is the Test Branch RIGHT???
+
 # Oh Hi! 
 This is my attempt at a project thats been in my head for years, 
 it is due alot of changes as I am learning as I go and getting experience on Django and the like.
