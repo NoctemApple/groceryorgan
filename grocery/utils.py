@@ -51,30 +51,18 @@ def parse_grocery_text(text):
 # Merge Function: Merges new items with the old list, preserving metadata (order, category, etc.).
 def merge_grocery_lists(new_items, old_items):
     """
-    Merges new_items with old_items based on the item name (case-insensitive).
-    Uses persistent history (loaded via load_order_history()) to preserve an item's
-    historical order and category. If an item exists in history, its order is used;
-    if not, and it exists in the old list, that metadata is used. Otherwise, new items
-    get order set to None.
+    Merges new_items with old_items, using persistent history to preserve each item's
+    historical order and category. If an item exists in history, its order and category are applied.
     """
-    # Load persistent history
-    history = load_order_history()
-    # Build lookup from old items for fallback
-    old_lookup = {item['name'].lower(): item for item in old_items}
-    
+    history = load_order_history()  # load from order_history.json
     merged = []
     for new_item in new_items:
         key = new_item['name'].lower()
         if key in history:
-            # Preserve historical order and category
             new_item['order'] = history[key].get('order')
             new_item['category'] = history[key].get('category', new_item.get('category', 0))
-        elif key in old_lookup:
-            # Fallback: use data from the old list if available
-            new_item['order'] = old_lookup[key].get('order')
-            new_item['category'] = old_lookup[key].get('category', new_item.get('category', 0))
         else:
-            # New item: set order to None
-            new_item['order'] = None
+            new_item['order'] = None  # New item; no historical order yet.
         merged.append(new_item)
     return merged
+
