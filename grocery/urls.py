@@ -1,12 +1,12 @@
 from django.urls import path
-from . import views
+from .views import index, add_item, upload_list, update_status, undo_status, clear_list, clear_history
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('add/', views.add_item, name='add_item'),
-    path('update-status/', views.update_status, name='update_status'),
-    path('undo-status/', views.undo_status, name='undo_status'),
-    path('upload/', views.upload_list, name='upload_list'),
-    path('clear/', views.clear_list, name='clear_list'),
-    path('clear-history/', views.clear_history, name='clear_history'),
+    path('', index, name='index'),
+    path('add/', add_item, name='add_item'),
+    path('update-status/', update_status, name='update_status'),
+    path('undo-status/', undo_status, name='undo_status'),
+    path('upload/', upload_list, name='upload_list'),
+    path('clear/', clear_list, name='clear_list'),
+    path('clear-history/', clear_history, name='clear_history'),
 ]
