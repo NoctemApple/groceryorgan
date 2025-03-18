@@ -12,47 +12,51 @@ def add_item(request):
             group = int(group)
         except (TypeError, ValueError):
             group = 0
-        items = load_grocery_list()
         if new_item:
-            items.append({
-                "name": new_item,
-                "category": group,
-                "done": False,
-                "order": None,
-                "last_done_date": None
-            })
-            save_grocery_list(items)
+            GroceryItem.objects.create(
+                name=new_item,
+                category=group,
+                done=False,
+                order=None,  # New items can have order as None, updated later
+                last_done_date=None
+            )
         return redirect('index')
     return HttpResponse("Invalid request method", status=405)
 
+
 def update_status(request):
     """
-    Marks an item as done, assigns a new order if not already set, and updates persistent history.
+    Marks an item as done by updating its 'done' flag and assigning an order
+    based on the sequence of marking.
     """
     if request.method == 'POST':
         item_name = request.POST.get('name')
-        items = load_grocery_list()
+        items = load_grocery_list()  # your JSON-based current list
         history = load_order_history()
-        key = item_name.lower()
-        
-        # If the item already has a historical order, we don't change it.
-        if key in history and history[key].get('order') is not None:
-            new_order = history[key]['order']
-        else:
-            # Calculate a new order: find the current maximum order in history and add 1.
-            current_order = max(
-                [data.get('order', 0) for data in history.values() if data.get('order') is not None] or [0]
-            )
-            new_order = current_order + 1
-        
+
+        # find the highest assigned order in history
+        current_max_order = max(
+            (data.get('order') or 0 for data in history.values()),
+            default=0
+        )
+
         for item in items:
-            if item['name'].lower() == key:
+            if item['name'].lower() == item_name.lower():
                 item['done'] = True
-                item['order'] = new_order
+                # if item has no historical order, assign it
+                if item_name.lower() not in history or history[item_name.lower()].get('order') is None:
+                    new_order = current_max_order + 1
+                    item['order'] = new_order
+                    history[item_name.lower()] = {
+                        'order': new_order,
+                        'category': item.get('category', 0)
+                    }
+                else:
+                    # If it already has an order, keep it
+                    item['order'] = history[item_name.lower()]['order']
                 item['last_done_date'] = datetime.date.today().isoformat()
-                # Update history with the new order and preserve category.
-                history[key] = {'order': new_order, 'category': item.get('category', 0)}
                 break
+
         save_grocery_list(items)
         save_order_history(history)
         return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")

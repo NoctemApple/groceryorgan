@@ -2,7 +2,13 @@ from django.shortcuts import render
 from grocery.utils import load_grocery_list
 
 def organize_items(items):
-    return sorted(items, key=lambda x: (x.get('category', 0), x['order'] if x['order'] is not None else float('inf')))
+    """
+    Sort items by order (None last), or by category first if you want.
+    """
+    return sorted(items, key=lambda x: (
+        x.get('category', 0),
+        x['order'] if x['order'] is not None else float('inf')
+    ))
 
 def get_group_options(items):
     if not items:
@@ -13,8 +19,4 @@ def get_group_options(items):
 def index(request):
     items = load_grocery_list()
     sorted_items = organize_items(items)
-    group_options = get_group_options(items)
-    return render(request, 'grocery/index.html', {
-        'grocery_list': sorted_items,
-        'group_options': group_options
-    })
+    return render(request, 'grocery/index.html', {'grocery_list': sorted_items})
