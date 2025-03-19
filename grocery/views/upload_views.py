@@ -1,23 +1,25 @@
 from django.shortcuts import render, redirect
-from grocery.utils import load_grocery_list, parse_grocery_text, merge_grocery_lists, save_grocery_list, update_history_with_insertion
+from grocery.utils import (
+    load_grocery_list, parse_grocery_text, merge_grocery_lists,
+    save_grocery_list, merge_and_preserve_history
+)
+import datetime
 
 def upload_list(request):
-    """
-    Uploads a new list, merges with old items, resets 'done' flags,
-    and preserves historical order from the last time items were done.
-    """
     if request.method == 'POST':
         raw_text = request.POST.get('raw_text')
         if raw_text:
-            new_items = parse_grocery_text(raw_text)  # parse text -> list of dicts
+            new_items = parse_grocery_text(raw_text)  # Parse the raw text into a list of dicts
             old_items = load_grocery_list()
-            # merge them so old items keep their 'order'
+            # Merge new items with the old list so that metadata is preserved
             merged_items = merge_grocery_lists(new_items, old_items)
-            # reset done status
+            # Reset the 'done' flags and last_done_date (if needed)
             for item in merged_items:
                 item['done'] = False
                 item['last_done_date'] = None
-            save_grocery_list(merged_items)
+            # Merge with persistent history and preserve historical order
+            updated_items = merge_and_preserve_history(merged_items)
+            save_grocery_list(updated_items)
         return redirect('index')
     return render(request, 'grocery/upload.html')
 

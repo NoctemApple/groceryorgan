@@ -85,36 +85,74 @@ def merge_grocery_lists(new_items, old_items):
     return merged
 
 def update_history_with_insertion(new_items):
+    history = load_order_history()
+    # Get the highest order from history, ignoring items with no order
+    max_order = max(
+        (data.get('order') for data in history.values() if data.get('order') is not None),
+        default=0
+    )
+    for new_item in new_items:
+        key = new_item['name'].lower()
+        if key in history and history[key].get('order') is not None:
+            # Preserve the historical order if it exists
+            new_item['order'] = history[key]['order']
+        else:
+            # Assign a new order for new items
+            max_order += 1
+            new_item['order'] = max_order
+            history[key] = {'order': max_order, 'category': new_item.get('category', 0)}
+    save_order_history(history)
+    new_items.sort(key=lambda x: x['order'] if x['order'] is not None else float('inf'))
+    return new_items
+
+def merge_and_reassign_orders(items, current_date):
     """
-    Overwrites the historical order with the new list's positions.
-    For each item in new_items:
-      - The 'order' is set to index+1 (the position in the new list).
-      - The 'category' is preserved from history if it exists.
-      - The updated values are saved to history.
-    Finally, new_items is sorted by 'order' and returned.
+    Recalculates orders by separating items updated on the current_date from those that are not,
+    merging them and then reassigning sequential order numbers.
+    """
+    updated = [item for item in items if item.get('last_done_date') == current_date]
+    not_updated = [item for item in items if item.get('last_done_date') != current_date]
+
+    # Sort each list by their current order (with None at the end)
+    updated_sorted = sorted(updated, key=lambda x: x['order'] if x['order'] is not None else float('inf'))
+    not_updated_sorted = sorted(not_updated, key=lambda x: x['order'] if x['order'] is not None else float('inf'))
+
+    # Merge them back together; adjust this merge logic if you need a specific interleaving
+    merged = sorted(items, key=lambda x: x['order'] if x['order'] is not None else float('inf'))
+
+    # Reassign sequential order numbers (1-indexed)
+    for index, item in enumerate(merged):
+        item['order'] = index + 1
+
+    return merged
+
+def merge_and_preserve_history(new_items):
+    """
+    For each item in new_items, if it exists in persistent history (i.e. already has an 'order'),
+    then keep that order. For new items, assign a new order after the current max.
+    Finally, sort items by category and order.
     """
     history = load_order_history()
-
-    # Keep track of old categories to preserve them if item already existed
-    old_categories = {k: v.get('category', 0) for k, v in history.items()}
-
-    for index, new_item in enumerate(new_items):
-        key = new_item['name'].lower()
-        # Overwrite order with new position
-        new_item['order'] = index + 1
-        # Preserve old category if it existed
-        old_cat = old_categories.get(key, new_item.get('category', 0))
-        new_item['category'] = old_cat
-
-        # Update or create history entry
-        history[key] = {
-            'order': new_item['order'],
-            'category': new_item['category']
-        }
-
-    # Save the updated history
+    # Determine the current max order among items with an order
+    max_order = max(
+        (data.get('order') for data in history.values() if data.get('order') is not None),
+        default=0
+    )
+    
+    for item in new_items:
+        key = item['name'].lower()
+        if key in history and history[key].get('order') is not None:
+            # Preserve the existing order
+            item['order'] = history[key]['order']
+        else:
+            # New item: assign a new order
+            max_order += 1
+            item['order'] = max_order
+            history[key] = {'order': max_order, 'category': item.get('category', 0)}
+    
+    # Save updated history
     save_order_history(history)
-
-    # Return new_items sorted by order
-    new_items.sort(key=lambda x: x['order'] if x['order'] is not None else float('inf'))
+    
+    # Sort items by category first, then by order (lower order numbers come first)
+    new_items.sort(key=lambda x: (x.get('category', 0), x['order']))
     return new_items

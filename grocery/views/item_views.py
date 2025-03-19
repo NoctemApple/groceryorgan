@@ -25,35 +25,27 @@ def add_item(request):
 
 
 def update_status(request):
-    """
-    Marks an item as done by updating its 'done' flag and assigning an order
-    based on the sequence of marking.
-    """
     if request.method == 'POST':
         item_name = request.POST.get('name')
-        items = load_grocery_list()  # your JSON-based current list
+        items = load_grocery_list()
         history = load_order_history()
-
-        # find the highest assigned order in history
-        current_max_order = max(
-            (data.get('order') or 0 for data in history.values()),
-            default=0
-        )
-
+        
+        # Consider only items that are marked as done in the current session/week
+        current_orders = [
+            item['order'] for item in items 
+            if item.get('order') is not None and item.get('last_done_date') == datetime.date.today().isoformat()
+        ]
+        current_max_order = max(current_orders, default=0)
+        
         for item in items:
             if item['name'].lower() == item_name.lower():
                 item['done'] = True
-                # if item has no historical order, assign it
-                if item_name.lower() not in history or history[item_name.lower()].get('order') is None:
-                    new_order = current_max_order + 1
-                    item['order'] = new_order
-                    history[item_name.lower()] = {
-                        'order': new_order,
-                        'category': item.get('category', 0)
-                    }
-                else:
-                    # If it already has an order, keep it
-                    item['order'] = history[item_name.lower()]['order']
+                new_order = current_max_order + 1
+                item['order'] = new_order
+                history[item_name.lower()] = {
+                    'order': new_order,
+                    'category': item.get('category', 0)
+                }
                 item['last_done_date'] = datetime.date.today().isoformat()
                 break
 
