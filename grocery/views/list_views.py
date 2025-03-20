@@ -2,13 +2,11 @@ from django.shortcuts import render
 from grocery.utils import load_grocery_list
 
 def organize_items(items):
-    """
-    Sort items by order (None last), or by category first if you want.
-    """
     return sorted(items, key=lambda x: (
         x.get('category', 0),
         x['order'] if x['order'] is not None else float('inf')
     ))
+
 
 def get_group_options(items):
     if not items:

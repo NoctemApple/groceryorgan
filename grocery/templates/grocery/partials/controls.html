@@ -1,26 +1,23 @@
 <div class="row mt-3">
-    <div class="col">
-      <h3>Add a Single Item</h3>
-      <!-- New Item Input Row -->
-      <form action="{% url 'add_item' %}" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-          <input type="text" name="item" class="form-control" placeholder="New item" required>
+  <div class="col">
+    <h3>Add a Single Item</h3>
+    <form action="{% url 'add_item' %}" method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <input type="text" name="item" class="form-control" placeholder="New item" required>
+      </div>
+      <div class="form-row">
+        <div class="col">
+          <select name="group" class="form-control" id="group-select">
+            {% for group in group_options %}
+              <option value="{{ group.id }}">Group {{ group.id }}</option>
+            {% endfor %}
+          </select>
         </div>
-        <!-- Group Dropdown and Add Button Row -->
-        <div class="form-row">
-          <div class="col">
-            <select name="group" class="form-control" {% if grocery_list|length == 0 %}disabled{% endif %}>
-              {% for group in group_options %}
-                <option value="{{ group }}">Group {{ group|add:1 }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Add Item</button>
-          </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-primary">Add Item</button>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   </div>
-  
+</div>
