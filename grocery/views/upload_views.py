@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from grocery.utils import (
     load_grocery_list, parse_grocery_text, merge_grocery_lists,
-    save_grocery_list, merge_and_preserve_history
+    save_grocery_list, merge_and_preserve_history, merge_and_resolve_conflicts
 )
 import datetime
 
@@ -9,19 +9,25 @@ def upload_list(request):
     if request.method == 'POST':
         raw_text = request.POST.get('raw_text')
         if raw_text:
-            new_items = parse_grocery_text(raw_text)  # Parse the raw text into a list of dicts
+            new_items = parse_grocery_text(raw_text)  # Parse the raw text into list of dicts
             old_items = load_grocery_list()
-            # Merge new items with the old list so that metadata is preserved
             merged_items = merge_grocery_lists(new_items, old_items)
-            # Reset the 'done' flags and last_done_date (if needed)
+            # Reset done status and clear last_done_date if needed
             for item in merged_items:
                 item['done'] = False
                 item['last_done_date'] = None
-            # Merge with persistent history and preserve historical order
-            updated_items = merge_and_preserve_history(merged_items)
-            save_grocery_list(updated_items)
+            
+            # First, preserve historical order for items that already have it
+            preserved = merge_and_preserve_history(merged_items)
+            
+            # Then, resolve conflicts: reassign orders for items updated this week
+            current_date = datetime.date.today().isoformat()
+            resolved = merge_and_resolve_conflicts(preserved, current_date)
+            
+            save_grocery_list(resolved)
         return redirect('index')
     return render(request, 'grocery/upload.html')
+
 
 def merge_grocery_lists(new_items, old_items):
     """

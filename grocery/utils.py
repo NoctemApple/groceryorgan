@@ -156,3 +156,35 @@ def merge_and_preserve_history(new_items):
     # Sort items by category first, then by order (lower order numbers come first)
     new_items.sort(key=lambda x: (x.get('category', 0), x['order']))
     return new_items
+
+def merge_and_resolve_conflicts(items, current_date):
+    """
+    Separates items into those updated on current_date and those that are not.
+    For updated items, assign new order numbers starting from (max order among not-updated + 1).
+    Then merge and return the sorted list.
+    """
+    updated = []
+    not_updated = []
+    
+    for item in items:
+        # Items updated this week have last_done_date equal to current_date
+        if item.get('last_done_date') == current_date:
+            updated.append(item)
+        else:
+            not_updated.append(item)
+    
+    # Determine the maximum order among not updated items (defaulting to 0)
+    max_order = max((item.get('order') or 0 for item in not_updated), default=0)
+    
+    # Sort the updated items by their current order if available (or fallback to some stable order)
+    updated_sorted = sorted(updated, key=lambda x: x.get('order') if x.get('order') is not None else float('inf'))
+    
+    # Reassign orders for updated items starting after max_order
+    for idx, item in enumerate(updated_sorted):
+        item['order'] = max_order + idx + 1
+    
+    # Combine the lists and sort overall by order
+    merged = not_updated + updated_sorted
+    merged.sort(key=lambda x: x.get('order'))
+    
+    return merged
