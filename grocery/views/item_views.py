@@ -3,6 +3,8 @@ from django.http import HttpResponse
 import datetime
 import json
 from grocery.utils import load_grocery_list, save_grocery_list, load_order_history, save_order_history
+from grocery.models import GroceryItem
+
 
 def add_item(request):
     if request.method == 'POST':
@@ -13,15 +15,19 @@ def add_item(request):
         except (TypeError, ValueError):
             group = 0
         if new_item:
-            GroceryItem.objects.create(
-                name=new_item,
-                category=group,
-                done=False,
-                order=None,  # New items can have order as None, updated later
-                last_done_date=None
-            )
+            items = load_grocery_list()
+            items.append({
+                'name': new_item,
+                'category': group,
+                'done': False,
+                'order': None,
+                'last_done_date': None
+            })
+            save_grocery_list(items)
         return redirect('index')
-    return HttpResponse("Invalid request method", status=405)
+    else:
+        # For GET requests, simply redirect to the index
+        return redirect('index')
 
 
 def update_status(request):
