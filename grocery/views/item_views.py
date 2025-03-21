@@ -10,17 +10,12 @@ def add_item(request):
     if request.method == 'POST':
         new_item = request.POST.get('item')
         group = request.POST.get('group')
-        group = request.POST.get('group')
-    try:
-        group = int(group)
-        # Optionally adjust if your internal grouping should be 0-based:
-        group = group - 1
-    except (TypeError, ValueError):
-        group = 0
+        try:
+            group = int(group)
+        except (TypeError, ValueError):
+            group = 0
         if new_item:
-            # Load the current list from the JSON file
             items = load_grocery_list()
-            # Append the new item
             items.append({
                 'name': new_item,
                 'category': group,
@@ -28,10 +23,11 @@ def add_item(request):
                 'order': None,
                 'last_done_date': None
             })
-            # Save the updated list back to the JSON file
             save_grocery_list(items)
         return redirect('index')
-    return HttpResponse("Invalid request method", status=405)
+    else:
+        # For GET requests, simply redirect to the index
+        return redirect('index')
 
 
 def update_status(request):

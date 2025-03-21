@@ -8,11 +8,11 @@
       </div>
       <div class="form-row">
         <div class="col">
-          <select name="group" class="form-control" id="group-select">
+          <select name="group" class="form-control">
             {% for group in group_options %}
-              <option value="{{ group.id }}">Group {{ group.id }}</option>
+              <option value="{{ group }}">Group {{ group|add:"1" }}</option>
             {% endfor %}
-          </select>
+          </select>          
         </div>
         <div class="col-auto">
           <button type="submit" class="btn btn-primary">Add Item</button>
