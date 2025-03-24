@@ -20,5 +20,4 @@ i.e http://192.168.1.10:8000
 ## To do list:
 1) Improve UI.
 2) Make sorting better.
-3) Make the UI actually good.
-4) Test and improve mobile experience.
+3) Test and improve mobile experience.
