@@ -35,3 +35,4 @@ Thumbs.db
 
 # Exclude .json files in grocery/utils/ from being ignored
 !vercel.json
+.vercel
