@@ -8,6 +8,10 @@
   ],
   "routes": [
     {
+      "src": "/favicon\\.png",
+      "dest": "/static/favicon.png"
+    },
+    {
       "src": "/(.*)",
       "dest": "groceryorgan/wsgi.py"
     }
