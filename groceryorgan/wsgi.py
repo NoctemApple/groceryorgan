@@ -15,4 +15,4 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'groceryorgan.settings')
 
 application = get_wsgi_application()
 app = VercelWSGIHandler(application)
-handler = app  # Ensuring compatibility with Vercel’s Python runtime
+handler = app  # Exporting the handler class for Vercel's runtime

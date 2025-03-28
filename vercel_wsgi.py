@@ -1,18 +1,18 @@
-# vercel.wsgi
+# vercel_wsgi.py
 from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 
 def VercelWSGIHandler(application):
     class VercelHandler(BaseHTTPRequestHandler):
-        def handle_one_request(self):
-            # Build a minimal WSGI environ (you’ll need to adjust this for your needs)
+        def do_GET(self):
+            # Build a basic WSGI environment from the GET request
             environ = {
-                'REQUEST_METHOD': self.command,
+                'REQUEST_METHOD': 'GET',
                 'PATH_INFO': self.path,
-                'SERVER_NAME': self.server.server_address[0],
-                'SERVER_PORT': str(self.server.server_address[1]),
+                'SERVER_NAME': self.server.server_address[0] if self.server.server_address else 'localhost',
+                'SERVER_PORT': str(self.server.server_address[1]) if self.server.server_address else '80',
                 'wsgi.input': self.rfile,
-                'wsgi.errors': None,
+                'wsgi.errors': self.wfile,
                 'wsgi.version': (1, 0),
                 'wsgi.run_once': False,
                 'wsgi.url_scheme': 'http',
@@ -22,11 +22,12 @@ def VercelWSGIHandler(application):
 
             response_body = BytesIO()
 
-            def start_response(status, response_headers, exc_info=None):
+            def start_response(status, headers, exc_info=None):
+                # Parse the status code from status string ("200 OK" -> 200)
                 code = int(status.split()[0])
                 self.send_response(code)
-                for header in response_headers:
-                    self.send_header(*header)
+                for header_name, header_value in headers:
+                    self.send_header(header_name, header_value)
                 self.end_headers()
                 return response_body.write
 
@@ -40,8 +41,8 @@ def VercelWSGIHandler(application):
 
             self.wfile.write(response_body.getvalue())
 
-        def handle(self):
-            # Instead of the default, process only one request per invocation
-            self.handle_one_request()
+        def do_POST(self):
+            # Similar implementation for POST if needed.
+            self.do_GET()  # For simplicity, route POST to the same handler
 
     return VercelHandler
