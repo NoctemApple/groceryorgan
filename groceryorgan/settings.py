@@ -1,5 +1,7 @@
 from decouple import config
 from pathlib import Path
+import dj_database_url
+import os
 
 # Base directory of the project
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -7,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security settings
 SECRET_KEY = config('SECRET_KEY', default='your-default-secret-key')
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda v: [s.strip() for s in v.split(',')])
 
 # Application definition
 INSTALLED_APPS = [
@@ -50,16 +52,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'groceryorgan.wsgi.application'
 
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
+
 # Database configuration
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('POSTGRES_DB', default='your_db_name'),
-        'USER': config('POSTGRES_USER', default='your_db_user'),
-        'PASSWORD': config('POSTGRES_PASSWORD', default='your_db_password'),
-        'HOST': config('POSTGRES_HOST', default='localhost'),
-        'PORT': config('POSTGRES_PORT', default='5432'),
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL')
+    )
 }
 
 # Password validation
