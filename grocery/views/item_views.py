@@ -4,6 +4,10 @@ import datetime
 import json
 from grocery.utils import load_grocery_list, save_grocery_list, load_order_history, save_order_history
 from grocery.models import GroceryItem
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+import datetime
+from grocery.models import GroceryItem
 
 
 def add_item(request):
@@ -30,35 +34,22 @@ def add_item(request):
         return redirect('index')
 
 
+
+
 def update_status(request):
     if request.method == 'POST':
         item_name = request.POST.get('name')
-        items = load_grocery_list()
-        history = load_order_history()
-        
-        # Consider only items that are marked as done in the current session/week
-        current_orders = [
-            item['order'] for item in items 
-            if item.get('order') is not None and item.get('last_done_date') == datetime.date.today().isoformat()
-        ]
-        current_max_order = max(current_orders, default=0)
-        
-        for item in items:
-            if item['name'].lower() == item_name.lower():
-                item['done'] = True
-                new_order = current_max_order + 1
-                item['order'] = new_order
-                history[item_name.lower()] = {
-                    'order': new_order,
-                    'category': item.get('category', 0)
-                }
-                item['last_done_date'] = datetime.date.today().isoformat()
-                break
+        # Assumes item names are unique (or you can filter by id)
+        item = get_object_or_404(GroceryItem, name__iexact=item_name)
+        item.done = True
+        item.last_done_date = datetime.date.today()
+        # Optionally calculate order (e.g., maximum current order + 1)
+        max_order = GroceryItem.objects.filter(last_done_date=datetime.date.today()).aggregate(max_order=models.Max('order'))['max_order'] or 0
+        item.order = max_order + 1
+        item.save()
+        return JsonResponse({"status": "success"})
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 
-        save_grocery_list(items)
-        save_order_history(history)
-        return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
-    return HttpResponse("Invalid request method", status=405)
 
 
 def undo_status(request):

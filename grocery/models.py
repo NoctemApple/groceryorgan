@@ -4,13 +4,12 @@ from django.core.validators import MinValueValidator
 
 class Group(models.Model):
     name = models.CharField(max_length=100)
-
     def __str__(self):
         return self.name
 
 class GroceryItemManager(models.Manager):
     def increment_usage(self, item_id):
-        # Use F expressions to ensure atomic updates.
+        # Atomic update using F expressions.
         return self.filter(id=item_id).update(usage_count=F('usage_count') + 1)
 
 class GroceryItem(models.Model):
@@ -24,7 +23,7 @@ class GroceryItem(models.Model):
     objects = GroceryItemManager()
 
     class Meta:
-        ordering = ['-usage_count', 'name']  # Or change this ordering as needed
+        ordering = ['-usage_count', 'name']
 
     def __str__(self):
         return self.name
